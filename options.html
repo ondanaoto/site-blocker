@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <title>Site Blocker 設定</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Site Blocker</h1>
+      <p class="hint">
+        ルールごとに「ブロック対象のドメイン」と「ブロックする時間帯」を設定します。
+        1つのルールに複数ドメイン/複数時間帯を入れられます。
+        終了時刻が開始時刻より前なら、日をまたぐ範囲として扱います (例: 22:00 → 02:00)。
+      </p>
+
+      <section class="card edit-window">
+        <h2>編集窓 (この時間帯のみ「緩める」変更が可能)</h2>
+        <p class="hint" id="editWindowHint"></p>
+        <div class="range">
+          <input type="time" id="editWindowStart" />
+          <span>〜</span>
+          <input type="time" id="editWindowEnd" />
+        </div>
+        <p class="hint pending-banner" id="pendingBanner" hidden></p>
+      </section>
+
+      <section id="rules"></section>
+
+      <button id="addRule" class="primary">＋ ルールを追加</button>
+
+      <template id="ruleTemplate">
+        <div class="rule card">
+          <div class="rule-header">
+            <label class="enabled">
+              <input type="checkbox" class="rule-enabled" checked />
+              <span>有効</span>
+            </label>
+            <input
+              type="text"
+              class="rule-name"
+              placeholder="ラベル (任意・例: SNS)"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button class="rule-delete" title="このルールを削除">削除</button>
+          </div>
+          <label class="domains-label">ドメイン (1行に1つ / カンマ区切りも可)</label>
+          <textarea
+            class="rule-domains"
+            rows="3"
+            placeholder="youtube.com&#10;twitter.com"
+            autocomplete="off"
+            spellcheck="false"
+          ></textarea>
+          <label class="ranges-label">時間帯</label>
+          <div class="ranges"></div>
+          <button class="add-range">＋ 時間帯を追加</button>
+        </div>
+      </template>
+
+      <template id="rangeTemplate">
+        <div class="range">
+          <input type="time" class="range-start" required />
+          <span>〜</span>
+          <input type="time" class="range-end" required />
+          <button class="range-delete" title="この時間帯を削除">×</button>
+        </div>
+      </template>
+    </main>
+
+    <div id="saveBar" class="save-bar" hidden>
+      <span id="saveBarSummary"></span>
+      <button id="discardBtn">破棄</button>
+      <button id="saveBtn" class="primary">保存</button>
+    </div>
+
+    <div id="modalOverlay" class="modal-overlay" hidden>
+      <div class="modal card">
+        <h2>緩める変更の確認</h2>
+        <p>以下の変更には「緩める」操作が含まれます。</p>
+        <ul id="modalDiff" class="diff-list"></ul>
+
+        <div id="typeBlock" hidden>
+          <p>続行するには、以下のドメイン名をすべて順番に正確にタイプしてください。</p>
+          <ol id="typeList" class="type-list"></ol>
+        </div>
+
+        <p id="editWindowDelayNote" class="hint" hidden>
+          編集窓 (start/end) の変更は <strong>24時間後</strong> に反映されます。
+        </p>
+
+        <div id="countdownBlock" hidden>
+          <p>確定まで <strong id="countdown">60</strong> 秒…</p>
+          <p class="hint">ここでウィンドウを閉じるとキャンセルされます。</p>
+        </div>
+
+        <p id="modalStatus" class="status"></p>
+
+        <div class="modal-actions">
+          <button id="modalCancel">キャンセル</button>
+          <button id="modalConfirm" class="primary" disabled>確定して保存</button>
+        </div>
+      </div>
+    </div>
+
+    <p id="status" class="status"></p>
+
+    <script type="module" src="options.js"></script>
+  </body>
+</html>

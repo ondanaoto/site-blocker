@@ -1,0 +1,40 @@
+{
+  "manifest_version": 3,
+  "name": "Time-based Site Blocker",
+  "version": "1.1.0",
+  "description": "指定したサイトを、設定した時間帯にだけブロックします。緩める操作は編集窓のみで可能。",
+  "permissions": [
+    "declarativeNetRequest",
+    "storage",
+    "alarms"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content_block.js"],
+      "run_at": "document_start",
+      "all_frames": false
+    }
+  ],
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "action": {
+    "default_title": "Time-based Site Blocker",
+    "default_popup": "popup.html"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["blocked.html"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
