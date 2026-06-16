@@ -15,6 +15,8 @@ const CONFIG_KEY = "siteBlockerConfig";
 const ALARM_TICK = "siteBlockerTick";
 const ALARM_EDITWIN = "siteBlockerEditWindowPromote";
 
+let previousActiveDomains = new Set();
+
 function newRuleId() {
   return "r_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 }
@@ -106,8 +108,35 @@ async function applyRules() {
     activeDomains,
   );
 
+  const newlyActive = activeDomains.filter((d) => !previousActiveDomains.has(d));
+  previousActiveDomains = new Set(activeDomains);
+  if (newlyActive.length > 0) {
+    await reloadTabsForDomains(newlyActive);
+  }
+
   await scheduleNextTick(rules, nowMin);
   await scheduleEditWindowPromote(config);
+}
+
+async function reloadTabsForDomains(domains) {
+  for (const domain of domains) {
+    let tabs;
+    try {
+      tabs = await chrome.tabs.query({
+        url: [`*://${domain}/*`, `*://*.${domain}/*`],
+      });
+    } catch (e) {
+      console.warn(`[site-blocker] tabs.query failed for ${domain}`, e);
+      continue;
+    }
+    for (const tab of tabs) {
+      try {
+        await chrome.tabs.reload(tab.id);
+      } catch (e) {
+        console.warn(`[site-blocker] tabs.reload failed for ${tab.id}`, e);
+      }
+    }
+  }
 }
 
 async function scheduleNextTick(rules, nowMin) {
